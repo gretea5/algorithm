@@ -27,7 +27,7 @@ public class Main {
         StringBuilder sb = new StringBuilder();
         
         for(String s : strList) {
-            sb.append(s.trim()).append("\n");
+            sb.append(s).append("\n");
         }
         
         System.out.print(sb);
@@ -45,7 +45,7 @@ public class Main {
             if (!isChecked[i]) {
                 isChecked[i] = true;
                 
-                backTrack(s + " " + i, depth + 1);
+                backTrack(s + i + " ", depth + 1);
                 
                 isChecked[i] = false;
             }
