@@ -15,16 +15,6 @@ public class Solution {
         }
     }
 
-    private static class Info {
-        int recordCnt;
-        int number;
-
-        Info(int recordCnt, int number) {
-            this.recordCnt = recordCnt;
-            this.number = number;
-        }
-    }
-
     private static int n;
     private static int answer;
     private static int maxRecord;
@@ -109,18 +99,18 @@ public class Solution {
 
         for (int d = 0; d < 4; d++) {
             if (check(map, p.x, p.y, d)) {
-                record(map, p.x, p.y, d);
+                record(map, p.x, p.y, d, -1);
 
                 backTrack(map, idx + 1, depth + 1, recordCnt + 1);
 
-                unRecord(map, p.x, p.y, d);
+                record(map, p.x, p.y, d, 0);
             }
         }
 
         backTrack(map, idx + 1, depth + 1, recordCnt);
     }
 
-    private static void record(int[][] map, int x, int y, int dir) {
+    private static void record(int[][] map, int x, int y, int dir, int value) {
         int mx = x;
         int my = y;
 
@@ -129,24 +119,7 @@ public class Solution {
             my += dy[dir];
 
             // -1 기록
-            map[mx][my] = -1;
-
-            if (mx == 0 || mx == n - 1 || my == 0 || my == n - 1) {
-                break;
-            }
-        }
-    }
-
-    private static void unRecord(int[][] map, int x, int y, int dir) {
-        int mx = x;
-        int my = y;
-
-        while (true) {
-            mx += dx[dir];
-            my += dy[dir];
-
-            // 0 기록
-            map[mx][my] = 0;
+            map[mx][my] = value;
 
             if (mx == 0 || mx == n - 1 || my == 0 || my == n - 1) {
                 break;
