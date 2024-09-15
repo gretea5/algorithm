@@ -6,31 +6,43 @@ import java.util.StringTokenizer;
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        int T = Integer.parseInt(br.readLine());
-
+        
+        int t = Integer.parseInt(br.readLine());
+        
         StringBuilder sb = new StringBuilder();
-
-        for(int test = 1; test <= T; test++) {
+        
+        for (int test = 1; test <= t; test++) {
             StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-
-            int distance = Math.abs(Integer.parseInt(st.nextToken()) - Integer.parseInt(st.nextToken()));
-
-            int rootValue = (int) Math.sqrt(distance);
-
-            if(distance == rootValue * rootValue) {
-                sb.append((rootValue * 2) - 1).append("\n");
+            
+            long x = Long.parseLong(st.nextToken());
+            long y = Long.parseLong(st.nextToken());
+            
+            long dist = y - x;
+            
+            long k = 1;
+            
+            while (true) {
+                if (k * (k + 1) >= dist) {
+                    break;
+                }
+                
+                k += 1;
             }
-            else if(distance <= (rootValue * rootValue) + rootValue) {
-                sb.append(rootValue * 2).append("\n");
+            
+            long answer = -1;
+            
+            if (dist > (k * k)) {
+                answer = 2 * k;
             }
             else {
-                sb.append((rootValue * 2) + 1).append("\n");
+                answer = (2 * k) - 1;
             }
+            
+            sb.append(answer).append("\n");
         }
-
+        
         System.out.print(sb);
-
+        
         br.close();
     }
 }
