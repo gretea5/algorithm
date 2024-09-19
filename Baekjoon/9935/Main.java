@@ -7,56 +7,59 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         
-        String s = br.readLine();
-        String t = br.readLine();
+        String str = br.readLine();
+        String bomb = br.readLine();
         
-        Stack<Character> st = new Stack<>();
+        Stack<Character> stack = new Stack<>();
         
-        for(int i = 0; i < s.length(); i++) {
-            st.push(s.charAt(i));
+        for(int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
             
-            //스택에 폭탄만큼의 문자 이상의 갯수가 들어있다면, 
-            if (st.size() >= t.length()) {
+            //일단 스택에 넣어봄
+            stack.push(ch);
+            
+            //스택의 제일 끝 문자와 폭발 문자열의 끝 문자가 같고, 스택의 폭탄 문자열보다 더 많이 들어가 있다면,
+            if (stack.peek() == bomb.charAt(bomb.length() - 1) && stack.size() >= bomb.length()) {
+                //폭발 문자열 여부
                 boolean flag = true;
                 
-                for(int j = 0; j < t.length(); j++) {
-                    int idx = st.size() - t.length() + j;
-                    
-                    //stack에서 get(idx) 연산으로 접근하면서 비교,
-                    if (st.get(idx) != t.charAt(j)) {
-                        //idx번째 부터 문자가 서로 다르면, 다른거 
+                //stack에서의 시작 인덱스
+                int startIdx = stack.size() - bomb.length();
+                
+                //폭발 문자열 크기 만큼 비교,
+                for (int j = 0; j < bomb.length(); j++) {
+                    if (bomb.charAt(j) != stack.get(j + startIdx)) {
                         flag = false;
                         break;
                     }
                 }
                 
-                //문자가 같다면 t의 길이만큼 뺀다.
+                //폭발 문자열이라면, 폭발 문자열의 크기 만큼 뺀다.
                 if (flag) {
-                    int len = t.length();
+                    int length = bomb.length();
                     
-                    while (len > 0) {
-                        st.pop();
+                    while (length > 0) {
+                        stack.pop();
                         
-                        len -= 1;
+                        length -= 1;
                     }
                 }
             }
         }
         
-        StringBuilder sb = new StringBuilder();
-        
-        while(!st.isEmpty()) {
-            sb.append(st.pop());
-        }
-        
-        String answer = sb.reverse().toString();
-        
-        if (answer.isEmpty()) {
+        //스택이 비어 있다면,
+        if (stack.isEmpty()) {
             System.out.print("FRULA");
             return;
         }
         
-        System.out.print(answer);
+        StringBuilder sb = new StringBuilder();
+        
+        while (!stack.isEmpty()) {
+            sb.append(stack.pop());
+        }
+        
+        System.out.print(sb.reverse());
         
         br.close();
     }
