@@ -2,72 +2,91 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.StringTokenizer;
+import java.util.Collections;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         
-        int N = Integer.parseInt(br.readLine());
+        int n = Integer.parseInt(br.readLine());
+        
+        ArrayList<Integer> crane = new ArrayList<>();
         
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         
-        ArrayList<Integer> cList = new ArrayList<>();
-        
-        for(int i = 0; i < N; i++) {
-            cList.add(Integer.parseInt(st.nextToken()));
+        for (int i = 0; i < n; i++) {
+            crane.add(Integer.parseInt(st.nextToken()));
         }
         
-        int M = Integer.parseInt(br.readLine());
+        int m = Integer.parseInt(br.readLine());
         
         st = new StringTokenizer(br.readLine(), " ");
         
-        ArrayList<Integer> bList = new ArrayList<>();
+        ArrayList<Integer> box = new ArrayList<>();
         
-        for(int i = 0; i < M; i++) {
-            bList.add(Integer.parseInt(st.nextToken()));
+        for (int i = 0; i < m; i++) {
+            box.add(Integer.parseInt(st.nextToken()));
         }
         
-        Collections.sort(cList, Collections.reverseOrder());
-        Collections.sort(bList, Collections.reverseOrder());
+        Collections.sort(crane, Collections.reverseOrder());
+        Collections.sort(box, Collections.reverseOrder());
         
-        if (cList.get(0) < bList.get(0)) {
+        //수화물을 옮길 수 없을 경우,
+        if (crane.get(0) < box.get(0)) {
             System.out.print(-1);
             return;
         }
         
-        int time = 0;
+        //수화물 움직임 여부
+        boolean[] moved = new boolean[m];
         
-        //박스에 담은 상자가 비어 있지 않을 동안,
-        while(!bList.isEmpty()) {
-            //크레인 인덱스, 박스 인덱스
-            int cIdx = 0;
-            int bIdx = 0;
+        //크레인의 이전 위치
+        int[] position = new int[n];
+        
+        //수화물 움직인 횟수
+        int movedCount = 0;
+        
+        int answer = 0;
+        
+        //수화물이 모두 비어있지 않을 경우,
+        while (movedCount != m) {
             
-            //즉 둘다 size까지 않았을 동안,
-            while(cIdx != cList.size() && bIdx != bList.size()) {
-                //크레인에서 당겨올 수 있는 경우,
-                if (cList.get(cIdx) >= bList.get(bIdx)) {
-                    //박스에 있는 bIdx 인덱스에 해당하는 값 제거
-                    bList.remove(bIdx);
-                    
-                    //여기서 +1을 크레인을 해줘야한다 why? => 박스에 있는 bIdx를 1더해주는 순간 데이터가 스킵되어버린다.
-                    //ArrayList에서 삭제하면 앞으로 이동하는 연산 때문에, bIdx는 이동을 하면 안된다.
-                    //그리고 크레인 입장에서는, 다음 크레인에서 박스의 무게랑 비교를 해야한다.
-                    cIdx += 1;
-                    
+            //여기에서 크레인과 수화물을 비교해, 
+            //크레인당 해당되는 수화물을 비교하면 되겠네,
+            int startIdx = 0;
+            
+            for (int i = 0; i < n; i++) {
+                if (movedCount == m) {
+                    break;
                 }
-                //크레인에서 못당겨오는 경우 박스의 인덱스 값을 증가
-                else {
-                    bIdx += 1;
+                
+                //크레인의 이전 위치를 기록해서 그 다음을 보는 형식으로 최적화
+                for(int j = position[i]; j < m; j++) {
+                    if (moved[j]) continue;
+                    
+                    //크레인으로 옮길 수 있다면,
+                    if (crane.get(i) >= box.get(j)) {
+                        moved[j] = true;
+                        
+                        movedCount += 1;
+                        
+                        startIdx = j;
+                        
+                        break;
+                    }
+                    //옮길수없을 경우,
+                    else {
+                        position[i] += 1;
+                    }
                 }
             }
             
-            time += 1;
+            answer += 1; 
         }
         
-        System.out.print(time);
+        //출력
+        System.out.print(answer); 
         
         br.close();
     }
