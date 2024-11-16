@@ -2,36 +2,46 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.ArrayDeque;
 import java.util.StringTokenizer;
 
-public class Solution {
-    private static ArrayList<Integer>[] toChild;
+class Solution {
+    private static int v, e;
+
+    private static int[] depth;
+    private static boolean[] visited;
+    private static int[][] parent;
+
+    private static ArrayList<Integer>[] graph;
+
+    private static final int ROOT = 1;
+    private static final int MAX_DEPTH = 14;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int testCase = Integer.parseInt(br.readLine());
+        int tc = Integer.parseInt(br.readLine());
 
         StringBuilder sb = new StringBuilder();
 
-        for (int test = 1; test <= testCase; test++) {
+        for (int test = 1; test <= tc; test++) {
+            sb.append("#").append(test).append(" ");
+
             StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 
-            //정점 간선의 개수 정보
-            int v = Integer.parseInt(st.nextToken());
-            int e = Integer.parseInt(st.nextToken());
+            v = Integer.parseInt(st.nextToken());
+            e = Integer.parseInt(st.nextToken());
 
-            //시작 정점 2개
             int n1 = Integer.parseInt(st.nextToken());
             int n2 = Integer.parseInt(st.nextToken());
 
-            toChild = new ArrayList[v + 1];
-            int[] toParent = new int[v + 1];
+            depth = new int[v + 1];
+            visited = new boolean[v + 1];
+            parent = new int[v + 1][MAX_DEPTH + 1];
+            graph = new ArrayList[v + 1];
 
             for (int i = 0; i < v + 1; i++) {
-                toChild[i] = new ArrayList<>();
+                graph[i] = new ArrayList<>();
             }
 
             st = new StringTokenizer(br.readLine(), " ");
@@ -40,50 +50,28 @@ public class Solution {
                 int p = Integer.parseInt(st.nextToken());
                 int c = Integer.parseInt(st.nextToken());
 
-                toChild[p].add(c);
-                toParent[c] = p;
+                //c에서 1번째 부모는 p
+                parent[c][0] = p;
+
+                //그래프 간선 정보 입력
+                graph[p].add(c);
             }
 
-            //부모로 이동하는 정점
-            int cur1 = n1;
-            int cur2 = n2;
+            dfs(ROOT, 1);
 
-            HashSet<Integer> set1 = new HashSet<>();
-            HashSet<Integer> set2 = new HashSet<>();
+            parent[ROOT][0] = ROOT;
 
-            //가장 가까운 공통 조상
-            int nearParent = 0;
-
-            while(true) {
-                int parent1 = toParent[cur1];
-
-                //가장 가까운 공통 조상을 찾았을 경우
-                if (set2.contains(parent1)) {
-                    nearParent = parent1;
-                    break;
-                }
-                //parent1이 집합에 포함되어 있지 않다면,
-                else {
-                    set1.add(parent1);
-                    cur1 = parent1;
-                }
-
-                int parent2 = toParent[cur2];
-
-                //가장 가까운 공통 조상을 찾았을 경우
-                if (set1.contains(parent2)) {
-                    nearParent = parent2;
-                    break;
-                }
-                //parent2이 집합에 포함되어 있지 않다면, 넣고 부모로 이동
-                else {
-                    set2.add(parent2);
-                    cur2 = parent2;
+            for (int i = 1; i < MAX_DEPTH + 1; i++) {
+                for (int j = 1; j < v + 1; j++) {
+                    parent[j][i] = parent[parent[j][i - 1]][i - 1];
                 }
             }
 
-            sb.append("#").append(test).append(" ");
-            sb.append(nearParent).append(" ").append(bfs(nearParent));
+            int lcaNumber = lca(n1, n2);
+
+            int size = bfs(lcaNumber);
+
+            sb.append(lcaNumber).append(" ").append(size);
             sb.append("\n");
         }
 
@@ -92,13 +80,54 @@ public class Solution {
         br.close();
     }
 
-    //가장 가까운 공통 조상으로부터 크기를 구함
-    private static int bfs(int start) {
-        boolean[] visited = new boolean[toChild.length];
-        ArrayDeque<Integer> queue = new ArrayDeque<>();
+    private static void dfs(int x, int d) {
+        visited[x] = true;
+        depth[x] = d;
 
-        queue.addLast(start);
-        visited[start] = true;
+        for (int next : graph[x]) {
+            if (!visited[next]) {
+                dfs(next, d + 1);
+            }
+        }
+    }
+
+    private static int lca(int n1, int n2) {
+        //더 깊은 높이를 가지는 노드의 번호를 n1으로 넣음
+        if (depth[n1] < depth[n2]) {
+            int temp = n1;
+            n1 = n2;
+            n2 = temp;
+        }
+
+        //높이를 맞춤
+        for (int i = MAX_DEPTH; i >= 0; i--) {
+            if (depth[n1] - depth[n2] >= (1 << i)) {
+                n1 = parent[n1][i];
+            }
+        }
+
+        //노드의 번호가 같다면 공통 조상
+        if (n1 == n2) {
+            return n1;
+        }
+
+        for (int i = MAX_DEPTH; i >= 0; i--) {
+            //두개가 다르면 올라가서 최소 공통 조상을 찾음
+            if (parent[n1][i] != parent[n2][i]) {
+                n1 = parent[n1][i];
+                n2 = parent[n2][i];
+            }
+        }
+
+        return parent[n1][0];
+    }
+
+    private static int bfs(int x) {
+        ArrayDeque<Integer> queue = new ArrayDeque<>();
+        visited = new boolean[v + 1];
+
+        queue.addLast(x);
+        visited[x] = true;
 
         int size = 0;
 
@@ -107,7 +136,7 @@ public class Solution {
 
             size += 1;
 
-            for (int next : toChild[cur]) {
+            for (int next : graph[cur]) {
                 if (!visited[next]) {
                     queue.addLast(next);
                     visited[next] = true;
