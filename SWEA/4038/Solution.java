@@ -3,9 +3,10 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 
 public class Solution {
-    private static final int K1 = 37;
-    private static final int K2 = 41;
-    private static final int K3 = 43;
+    //하나의 문자에서 나올 수 있는 경우의 수를 넘는 소수를 주면 거의 다 들어온다.
+    private static final int K1 = 67;
+    private static final int K2 = 71;
+    private static final int K3 = 73;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -17,20 +18,20 @@ public class Solution {
         for (int test = 1; test <= t; test++) {
             sb.append("#").append(test).append(" ");
 
-            String parent = br.readLine();
-            String pattern = br.readLine();
+            String b = br.readLine();
+            String s = br.readLine();
 
-            int parentSize = parent.length();
-            int patternSize = pattern.length();
+            int bCnt = b.length();
+            int sCnt = s.length();
 
-            int parentHash1 = 0;
-            int patternHash1 = 0;
+            int bHash1 = 0;
+            int sHash1 = 0;
 
-            int parentHash2 = 0;
-            int patternHash2 = 0;
+            int bHash2 = 0;
+            int sHash2 = 0;
 
-            int parentHash3 = 0;
-            int patternHash3 = 0;
+            int bHash3 = 0;
+            int sHash3 = 0;
 
             int power1 = 1;
             int power2 = 1;
@@ -38,32 +39,33 @@ public class Solution {
 
             int answer = 0;
 
-            for(int i = 0; i <= parentSize - patternSize; i++) {
+            for (int i = 0; i <= bCnt - sCnt; i++) {
+                //i가 0이라면 s 길이 만큼의 해시값들을 구함
                 if (i == 0) {
-                    for(int j = 0; j < patternSize; j++) {
-                        parentHash1 += hash(parent.charAt(patternSize - 1 - j), power1);
-                        patternHash1 += hash(pattern.charAt(patternSize - 1 - j), power1);
+                    for (int j = 0; j < sCnt; j++) {
+                        bHash1 += hash(b.charAt(sCnt - 1 - j), power1);
+                        sHash1 += hash(s.charAt(sCnt - 1 - j), power1);
 
-                        parentHash2 += hash(parent.charAt(patternSize - 1 - j), power2);
-                        patternHash2 += hash(pattern.charAt(patternSize - 1 - j), power2);
+                        bHash2 += hash(b.charAt(sCnt - 1 - j), power2);
+                        sHash2 += hash(s.charAt(sCnt - 1 - j), power2);
 
-                        parentHash3 += hash(parent.charAt(patternSize - 1 - j), power3);
-                        patternHash3 += hash(pattern.charAt(patternSize - 1 - j), power3);
+                        bHash3 += hash(b.charAt(sCnt - 1 - j), power3);
+                        sHash3 += hash(s.charAt(sCnt - 1 - j), power3);
 
-                        if (j < patternSize - 1) {
+                        if (j < sCnt - 1) {
                             power1 *= K1;
                             power2 *= K2;
                             power3 *= K3;
                         }
                     }
-
-                } else {
-                    parentHash1 = K1 * (parentHash1 - hash(parent.charAt(i - 1), power1)) + parent.charAt(i + patternSize - 1);
-                    parentHash2 = K2 * (parentHash2 - hash(parent.charAt(i - 1), power2)) + parent.charAt(i + patternSize - 1);
-                    parentHash3 = K3 * (parentHash3 - hash(parent.charAt(i - 1), power3)) + parent.charAt(i + patternSize - 1);
+                }
+                else {
+                    bHash1 = K1 * (bHash1 - hash(b.charAt(i - 1), power1)) + b.charAt(i + sCnt -  1);
+                    bHash2 = K2 * (bHash2 - hash(b.charAt(i - 1), power2)) + b.charAt(i + sCnt -  1);
+                    bHash3 = K3 * (bHash3 - hash(b.charAt(i - 1), power3)) + b.charAt(i + sCnt -  1);
                 }
 
-                if(parentHash1 == patternHash1 && parentHash2 == patternHash2 && parentHash3 == patternHash3) {
+                if (bHash1 == sHash1 && bHash2 == sHash2 && bHash3 == sHash3) {
                     answer += 1;
                 }
             }
